@@ -4,8 +4,8 @@ DAY_NUMBER=$1
 DATA_FILE_NAME="day${DAY_NUMBER}.csv"
 SCRIPT_NAME="day${DAY_NUMBER}.py"
 
-# touch inputs/$DATA_FILE_NAME
-# touch inputs/tests/$DATA_FILE_NAME
+touch inputs/$DATA_FILE_NAME
+touch inputs/tests/$DATA_FILE_NAME
 touch days/$SCRIPT_NAME
 
 cat <<EOF > days/$SCRIPT_NAME
