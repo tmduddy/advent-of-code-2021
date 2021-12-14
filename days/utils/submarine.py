@@ -8,12 +8,14 @@ class Submarine:
         move_file_path: str = None, 
         initial_position: Optional[Dict[str, int]] = None,
         diagnostic_file_path: str = None,
-        bingo_file_path: str = None
+        bingo_file_path: str = None,
+        vent_file_path: str = None,
     ) -> None:
         self.move_file_path = move_file_path
         self.position = initial_position or self._get_new_position()
         self.diagnostic_file_path = diagnostic_file_path
         self.bingo_file_path = bingo_file_path
+        self.vent_file_path = vent_file_path
 
     @staticmethod
     def _get_new_position() -> Dict[str, int]:
@@ -125,7 +127,61 @@ class Submarine:
             life_support_rating = oxygen_generator_dec * co2_scrubber_dec
             print(life_support_rating)
 
-    def play_bingo(self) -> None:
-        with open(self.bingo_file_path, 'r') as f:
-            reader = list(csv.reader(f))
-            moves = reader[0]
+    def check_vents(self, diagonal: bool):
+        with open(self.vent_file_path, 'r') as f:
+            reader = csv.reader(f, delimiter=' ')
+            moves = []
+            x_list = []
+            y_list = []
+            for row in reader:
+                x_from = row[0].split(',')[0]
+                x_to = row[2].split(',')[0]
+                y_from = row[0].split(',')[1]
+                y_to = row[2].split(',')[1]
+                if not diagonal:
+                    if not (x_from == x_to or y_from == y_to):
+                        continue
+                moves.append({
+                    "from": {"x": int(x_from), "y": int(y_from)},
+                    "to": {"x": int(x_to), "y": int(y_to)}
+                })
+                x_list += [int(x_from), int(x_to)]
+                y_list += [int(y_from), int(y_to)]
+            max_x = max(x_list)+1
+            max_y = max(y_list)+1
+
+        map = [[0]*max_x for _ in range(max_y)]
+        for move in moves:
+            map = self._process_vent_move(move, map)
+        
+        self._print_vent_map(row, map)
+        score = self._get_vent_score(map)
+        print(score)
+
+    def _get_vent_score(self, map):
+        score = sum([sum([1 for number in row if number >= 2]) for row in map])
+        return score
+
+    def _print_vent_map(self, row, map):
+        for i, row in enumerate(map): print(f'{i if len(str(i)) >1 else " "+str(i)}: {row}')
+
+    def _process_vent_move(self, move: Dict, map: List[List[int]]):
+        y_from = move["from"]["y"]
+        y_to = move["to"]["y"]
+        x_from = move["from"]["x"]
+        x_to = move["to"]["x"]
+        # straight row
+        if y_from == y_to:
+            line = range(x_from, x_to+1) if x_from <= x_to else range(x_to, x_from+1)
+            for x in line:
+                map[y_from][x] += 1
+        # straight column
+        elif x_from == x_to:
+            line = range(y_from, y_to+1) if y_from <= y_to else range(y_to, y_from+1)
+            for y in line:
+                map[y][x_from] += 1
+        # top left to bottom right
+        elif x_from > x_to and y_from > y_to:
+            pass
+
+        return map
