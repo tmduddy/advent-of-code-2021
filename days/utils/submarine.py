@@ -8,10 +8,12 @@ class Submarine:
         move_file_path: str = None, 
         initial_position: Optional[Dict[str, int]] = None,
         diagnostic_file_path: str = None,
+        bingo_file_path: str = None
     ) -> None:
         self.move_file_path = move_file_path
         self.position = initial_position or self._get_new_position()
         self.diagnostic_file_path = diagnostic_file_path
+        self.bingo_file_path = bingo_file_path
 
     @staticmethod
     def _get_new_position() -> Dict[str, int]:
@@ -122,3 +124,8 @@ class Submarine:
             co2_scrubber_dec = int(co2_scrubber, 2)
             life_support_rating = oxygen_generator_dec * co2_scrubber_dec
             print(life_support_rating)
+
+    def play_bingo(self) -> None:
+        with open(self.bingo_file_path, 'r') as f:
+            reader = list(csv.reader(f))
+            moves = reader[0]
