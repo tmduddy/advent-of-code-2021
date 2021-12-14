@@ -5,6 +5,13 @@ import csv
 from math import ceil
 
 class BingoBoard:
+    """
+    represents a single "bingo" board, an NxN list of list of ints. 
+    a bingo board can process "moves" where a move is a single integer. 
+    The board will be searched for that integer and all instances replaced with a -1
+    when a board "wins" (that is, 5 -1s appear in any row or column, no diagonals) its score is
+    calculated as the sum of the positive numbers still on the board multiplied by the move value
+    """
     def __init__(self, board_list: List[List], index, board_size):
         self.raw_board = board_list
         self.int_board = self._raw_list_to_int_board(board_list)
@@ -12,14 +19,19 @@ class BingoBoard:
         self.score = 0
         self.board_size = board_size
 
-    def _raw_list_to_int_board(self, board_list):
+    def _raw_list_to_int_board(self, board_list: List) -> List[List[int]]:
+        """converts the list provided by the puzzle input into a nicely formatted list of list of ints
+        """
         int_board = []
         for row in board_list:
             int_row = [int(i) for i in row[0].split(' ') if i != '']
             int_board.append(int_row)
         return int_board
 
-    def _refresh_raw_board(self):
+    def refresh_raw_board(self):
+        """
+        converts an int_board back into a pretty_printable "raw" board for display purposes
+        """
         new_board = []
         for i, row in enumerate(self.int_board):
             new_board.append([])
@@ -37,7 +49,10 @@ class BingoBoard:
                 if number == move:
                     self.int_board[i][j] = -1
 
-    def has_won(self):
+    def has_won(self) -> bool:
+        """
+        checks for the win condition
+        """
         # check rows
         for row in self.int_board:
             if sum(row) == -5:
@@ -56,6 +71,9 @@ class BingoBoard:
         # return False
 
     def get_score(self, move: int) -> int:
+        """
+        calculates the score by multiplying the last move by the sum of the positive integers on the board.
+        """
         board_score = 0
         for row in self.int_board:
             for num in row:
@@ -63,12 +81,16 @@ class BingoBoard:
         return board_score * move
 
     def __repr__(self):
+        """pretty prints the board
+        """
         output = ''
         for row in self.raw_board:
             output += row[0] + '\n'
         return '\n' + output
 
 class BingoPlayer:
+    """a BingoPlayer takes a raw puzzle input and creates a collection of BingoBoards and applies moves to them.
+    """
 
     def __init__(self, board_size=5):
         self.all_boards: Dict[str, BingoBoard] = {}
@@ -101,7 +123,7 @@ class BingoPlayer:
 
     def _handle_win(self, board: BingoBoard, move: int):
         print('----WIN----')
-        board._refresh_raw_board()
+        board.refresh_raw_board()
         print(f'score={board.get_score(move)}')
         print(f'{board.index=}')
 
