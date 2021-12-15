@@ -153,8 +153,11 @@ class Submarine:
         map = [[0]*max_x for _ in range(max_y)]
         for move in moves:
             map = self._process_vent_move(move, map)
+            # print(move)
+            # self._print_vent_map(row, map)
+            # print('')
         
-        self._print_vent_map(row, map)
+        # self._print_vent_map(row, map)
         score = self._get_vent_score(map)
         print(score)
 
@@ -180,8 +183,16 @@ class Submarine:
             line = range(y_from, y_to+1) if y_from <= y_to else range(y_to, y_from+1)
             for y in line:
                 map[y][x_from] += 1
-        # top left to bottom right
-        elif x_from > x_to and y_from > y_to:
-            pass
+        # diagonal
+        else:
+            x_offset = 1 if x_from < x_to else -1
+            y_offset = 1 if y_from < y_to else -1
+            x = x_from
+            y = y_from
+            while abs(y - y_to) > 0 and abs(x - x_to) > 0:
+                map[y][x] += 1
+                x += x_offset
+                y += y_offset
+            map[y_to][x_to] += 1
 
         return map

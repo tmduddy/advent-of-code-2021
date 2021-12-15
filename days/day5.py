@@ -18,4 +18,4 @@ def day5b():
 
 if __name__ == '__main__':
     # day5a() # answer = 6311
-    day5b() # answer = 
+    day5b() # answer = 19929
