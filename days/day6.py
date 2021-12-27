@@ -46,4 +46,4 @@ def day6b():
 
 if __name__ == '__main__':
     # day6a() # answer = 363101
-    day6b() # answer = 1644286074024
+    day6b() # answer = 1,644,286,074,024
