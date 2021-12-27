@@ -301,8 +301,8 @@ class SegmentSub(Submarine):
             enigma_map = {}
             # build scramble map {digit: int : segment: set} for 1,4,7,8
             scrambled_map = {}
-            for digit in row['input']:
-                if len(digit) == 2: 
+            for digit in row["input"]:
+                if len(digit) == 2:
                     scrambled_map[1] = set(digit)
                 elif len(digit) == 3:
                     scrambled_map[7] = set(digit)
@@ -312,7 +312,7 @@ class SegmentSub(Submarine):
                     scrambled_map[8] = set(digit)
 
             # build scramble map for remaining numbers (req. 1,4,7,8)
-            for digit in row['input']:
+            for digit in row["input"]:
                 # 6 segment digit with 3 segments not in '4' is 0
                 digit_set = set(digit)
                 if len(digit) == 6:
@@ -331,19 +331,18 @@ class SegmentSub(Submarine):
                             scrambled_map[5] = digit_set
                     else:
                         scrambled_map[3] = digit_set
-        
-            for numeral, segments in scrambled_map.items():
-                enigma_map[''.join(sorted(segments))] = numeral
 
-            output_digit = ''
-            for digit in row['output']:
-                sorted_digit = ''.join(sorted(digit))
+            for numeral, segments in scrambled_map.items():
+                enigma_map["".join(sorted(segments))] = numeral
+
+            output_digit = ""
+            for digit in row["output"]:
+                sorted_digit = "".join(sorted(digit))
                 output_digit += str(enigma_map[sorted_digit])
             total += int(output_digit)
             if self.debug:
                 print(f"{' '.join(row['output'])}: {output_digit} -> {total=}")
         print(total)
-       
 
     def convert_to_valid_segment(self, scrambled_str):
         return "".join([self.enigma_map[char] for char in scrambled_str])

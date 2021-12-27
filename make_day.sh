@@ -14,11 +14,12 @@ from utils.submarine import Submarine
 TEST_PATH = "inputs/tests/$DATA_FILE_NAME"
 FILE_PATH = "inputs/$DATA_FILE_NAME"
 
-submarine = Submarine()
+submarine = Submarine(file_path=TEST_PATH, debug=True)
+
 
 def day${DAY_NUMBER}a():
     print('--- DAY ${DAY_NUMBER}A ---')
-    
+
 
 def day${DAY_NUMBER}b():
     print('--- DAY ${DAY_NUMBER}B ---')
@@ -27,4 +28,5 @@ def day${DAY_NUMBER}b():
 if __name__ == '__main__':
     day${DAY_NUMBER}a() # answer = 
     day${DAY_NUMBER}b() # answer = 
+
 EOF
