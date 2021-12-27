@@ -13,6 +13,7 @@ def day9a():
 
 def day9b():
     print("--- DAY 9B ---")
+    submarine.find_basins()
 
 
 if __name__ == "__main__":

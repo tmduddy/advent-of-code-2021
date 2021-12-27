@@ -392,3 +392,7 @@ class SmokeSub(Submarine):
         
         points = sum(i+1 for i in low_points)
         print(points)
+
+    def find_basins(self):
+        data = self.load_smoke_data()
+        
