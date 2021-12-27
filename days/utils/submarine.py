@@ -242,58 +242,108 @@ class VentSub(Submarine):
 class SegmentSub(Submarine):
     def __init__(self, file_path: str = None, debug: bool = False) -> None:
         super().__init__(file_path=file_path, debug=debug)
+
         self.segment_count_map = {
-            0: 6,
-            1: 2,
-            2: 5,
-            3: 5,
-            4: 4,
-            5: 5,
-            6: 6,
-            7: 3,
-            8: 7,
-            9: 6
-        }
-        self.segment_count_map2 = {
             2: [1],
             3: [7],
             4: [4],
-            5: [2,3,5,6],
-            6: [0,6,9],
-            7: [8]
+            5: [2, 3, 5, 6],
+            6: [0, 6, 9],
+            7: [8],
         }
 
-        self.easy_digits = [1,4,7,8]
+        self.default_segment_map = {
+            "abcefg": 0,
+            "cf": 1,
+            "acdeg": 2,
+            "acdfg": 3,
+            "bcdf": 4,
+            "abdfg": 5,
+            "abdefg": 6,
+            "acf": 7,
+            "abcdefg": 8,
+            "abcdfg": 9,
+        }
+
+        self.enigma_map = {}
+
+        self.easy_digits = [1, 4, 7, 8]
 
     def _load_segment_data(self):
         data = []
-        with open(self.file_path, 'r') as f:
+        with open(self.file_path, "r") as f:
             for line in f:
-                segment_data = line.split('|')
+                segment_data = line.split("|")
                 data.append(
                     {
-                        "input": segment_data[0].strip().split(' '),
-                        "output": segment_data[1].strip().split(' ')
+                        "input": segment_data[0].strip().split(" "),
+                        "output": segment_data[1].strip().split(" "),
                     }
                 )
         return data
 
-    def run_segments(self):
+    def count_easy_digits(self):
         data = self._load_segment_data()
         count = 0
         for row in data:
-            count += self._count_easy_digits(row)
-            if self.debug:
-                print(f'{count=}, {row=}')
+            output = row["output"]
+            for digit in output:
+                if self.debug:
+                    print(digit, len(digit))
+                if any([self.segment_count_map[len(digit)][0] in self.easy_digits]):
+                    count += 1
         print(count)
 
-    def _count_easy_digits(self, row):
-        output = row['output']
-        count = 0
-        for digit in output:
-            if self.debug:
-                print(digit, len(digit))
-            if any([self.segment_count_map2[len(digit)][0] in self.easy_digits]):
-                count += 1
-        return count
+    def run_segments(self):
+        data = self._load_segment_data()
+        total = 0
+        for row in tqdm(data):
+            enigma_map = {}
+            # build scramble map {digit: int : segment: set} for 1,4,7,8
+            scrambled_map = {}
+            for digit in row['input']:
+                if len(digit) == 2: 
+                    scrambled_map[1] = set(digit)
+                elif len(digit) == 3:
+                    scrambled_map[7] = set(digit)
+                elif len(digit) == 4:
+                    scrambled_map[4] = set(digit)
+                elif len(digit) == 7:
+                    scrambled_map[8] = set(digit)
 
+            # build scramble map for remaining numbers (req. 1,4,7,8)
+            for digit in row['input']:
+                # 6 segment digit with 3 segments not in '4' is 0
+                digit_set = set(digit)
+                if len(digit) == 6:
+                    if len(digit_set - scrambled_map[7]) == 3:
+                        if len(digit_set - scrambled_map[4]) == 3:
+                            scrambled_map[0] = digit_set
+                        else:
+                            scrambled_map[9] = digit_set
+                    else:
+                        scrambled_map[6] = digit_set
+                elif len(digit) == 5:
+                    if len(digit_set - scrambled_map[7]) == 3:
+                        if len(digit_set - scrambled_map[4]) == 3:
+                            scrambled_map[2] = digit_set
+                        else:
+                            scrambled_map[5] = digit_set
+                    else:
+                        scrambled_map[3] = digit_set
+        
+            for numeral, segments in scrambled_map.items():
+                enigma_map[''.join(sorted(segments))] = numeral
+
+            output_digit = ''
+            for digit in row['output']:
+                sorted_digit = ''.join(sorted(digit))
+                output_digit += str(enigma_map[sorted_digit])
+            total += int(output_digit)
+            if self.debug:
+                print(f"{' '.join(row['output'])}: {output_digit} -> {total=}")
+        print(total)
+       
+
+    def convert_to_valid_segment(self, scrambled_str):
+        return "".join([self.enigma_map[char] for char in scrambled_str])
