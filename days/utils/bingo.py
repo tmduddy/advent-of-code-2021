@@ -4,14 +4,16 @@ from copy import deepcopy
 import csv
 from math import ceil
 
+
 class BingoBoard:
     """
-    represents a single "bingo" board, an NxN list of list of ints. 
-    a bingo board can process "moves" where a move is a single integer. 
+    represents a single "bingo" board, an NxN list of list of ints.
+    a bingo board can process "moves" where a move is a single integer.
     The board will be searched for that integer and all instances replaced with a -1
     when a board "wins" (that is, 5 -1s appear in any row or column, no diagonals) its score is
     calculated as the sum of the positive numbers still on the board multiplied by the move value
     """
+
     def __init__(self, board_list: List[List], index, board_size):
         self.raw_board = board_list
         self.int_board = self._raw_list_to_int_board(board_list)
@@ -20,11 +22,10 @@ class BingoBoard:
         self.board_size = board_size
 
     def _raw_list_to_int_board(self, board_list: List) -> List[List[int]]:
-        """converts the list provided by the puzzle input into a nicely formatted list of list of ints
-        """
+        """converts the list provided by the puzzle input into a nicely formatted list of list of ints"""
         int_board = []
         for row in board_list:
-            int_row = [int(i) for i in row[0].split(' ') if i != '']
+            int_row = [int(i) for i in row[0].split(" ") if i != ""]
             int_board.append(int_row)
         return int_board
 
@@ -36,10 +37,10 @@ class BingoBoard:
         for i, row in enumerate(self.int_board):
             new_board.append([])
             for number in row:
-                add_string = str(number) if len(str(number)) == 2 else f' {number}'
+                add_string = str(number) if len(str(number)) == 2 else f" {number}"
                 new_board[i].append(add_string)
-            self.raw_board[i] = [' '.join(new_board[i])]
-        
+            self.raw_board[i] = [" ".join(new_board[i])]
+
         print(self)
 
     def process_move(self, move: int, move_number: int) -> int:
@@ -57,7 +58,7 @@ class BingoBoard:
         for row in self.int_board:
             if sum(row) == -5:
                 return True
-        
+
         # check columns
         for column in np.transpose(self.int_board):
             if sum(column) == -5:
@@ -81,16 +82,15 @@ class BingoBoard:
         return board_score * move
 
     def __repr__(self):
-        """pretty prints the board
-        """
-        output = ''
+        """pretty prints the board"""
+        output = ""
         for row in self.raw_board:
-            output += row[0] + '\n'
-        return '\n' + output
+            output += row[0] + "\n"
+        return "\n" + output
+
 
 class BingoPlayer:
-    """a BingoPlayer takes a raw puzzle input and creates a collection of BingoBoards and applies moves to them.
-    """
+    """a BingoPlayer takes a raw puzzle input and creates a collection of BingoBoards and applies moves to them."""
 
     def __init__(self, board_size=5):
         self.all_boards: Dict[str, BingoBoard] = {}
@@ -98,34 +98,36 @@ class BingoPlayer:
         self.board_size = board_size
 
     def initialize_game(self, bingo_file_path: str):
-        with open(bingo_file_path, 'r') as f:
+        with open(bingo_file_path, "r") as f:
             reader = list(csv.reader(f))
             self.moves = [int(i) for i in reader[0]]
             board_lists = [i for i in reader[2:] if len(i) > 0]
         for i in range(len(board_lists)):
-            if (i > 0 and i % self.board_size == 0):
-                board = board_lists[i-self.board_size:i]
+            if i > 0 and i % self.board_size == 0:
+                board = board_lists[i - self.board_size : i]
             elif i == len(board_lists) - 1:
-                board = board_lists[i-(self.board_size-1):i+1]
+                board = board_lists[i - (self.board_size - 1) : i + 1]
             else:
                 continue
-            index = ceil(i/self.board_size) - 1
-            bingo_board = BingoBoard(board_list=board, index=index, board_size=self.board_size)
+            index = ceil(i / self.board_size) - 1
+            bingo_board = BingoBoard(
+                board_list=board, index=index, board_size=self.board_size
+            )
             self.all_boards[index] = bingo_board
-    
+
     def print_boards(self, index=None):
         if not index:
             for i in self.all_boards:
                 print(self.all_boards[i])
         else:
-            print(f'{index=}')
+            print(f"{index=}")
             print(self.all_boards.get(index))
 
     def _handle_win(self, board: BingoBoard, move: int):
-        print('----WIN----')
+        print("----WIN----")
         board.refresh_raw_board()
-        print(f'score={board.get_score(move)}')
-        print(f'{board.index=}')
+        print(f"score={board.get_score(move)}")
+        print(f"{board.index=}")
 
     def play_all(self, win_type: str = "FIRST"):
         valid_indices = [i for i in self.all_boards.keys()]
@@ -133,10 +135,10 @@ class BingoPlayer:
             for index, board in self.all_boards.items():
                 if index not in valid_indices:
                     continue
-                board.process_move(move=move, move_number=i+1)
+                board.process_move(move=move, move_number=i + 1)
                 # dont check for a win until at least self.board_size - 1 moves have been made
                 if (i > self.board_size - 2) and board.has_won():
-                    if win_type == 'LAST':
+                    if win_type == "LAST":
                         valid_indices.remove(index)
                         self.all_scores.append((index, board.get_score(move)))
                         if len(self.all_scores) == len(self.all_boards):

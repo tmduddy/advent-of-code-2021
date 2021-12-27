@@ -1,19 +1,19 @@
-from utils.submarine import Submarine
+from utils.submarine import Submarine, MoveSub
+
+FILE_PATH = "inputs/day2.csv"
+TEST_PATH = "inputs/tests/day2.csv"
+
 
 def day2a():
-    file_path = 'inputs/day2.csv'
-    test_path = 'inputs/tests/day2.csv'
-
-    submarine = Submarine(file_path)
+    submarine = MoveSub(file_path=FILE_PATH)
     submarine.run_movement_no_aim()
 
-def day2b():
-    file_path = 'inputs/day2.csv'
-    test_path = 'inputs/tests/day2.csv'
 
-    submarine = Submarine(file_path)
+def day2b():
+    submarine = MoveSub(file_path=FILE_PATH)
     submarine.run_movement()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # day2a()
     day2b()
