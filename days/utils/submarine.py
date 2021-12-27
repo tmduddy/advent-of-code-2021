@@ -346,3 +346,49 @@ class SegmentSub(Submarine):
 
     def convert_to_valid_segment(self, scrambled_str):
         return "".join([self.enigma_map[char] for char in scrambled_str])
+
+
+class SmokeSub(Submarine):
+    def __init__(self, file_path: str = None, debug: bool = False) -> None:
+        super().__init__(file_path=file_path, debug=debug)
+
+    def load_smoke_data(self):
+        with open(self.file_path, "r") as f:
+            data = [list(line.strip()) for line in f]
+        return data
+
+    def find_low_points(self):
+        data = self.load_smoke_data()
+        low_points = []
+        for y, row_data in enumerate(data):
+            for x, value in enumerate(row_data):
+                neighbors = []
+                # if not the top or bottom row
+                try:
+                    if y > 0:
+                        neighbors.append(data[y-1][x])
+                except IndexError:
+                    pass
+                try:
+                    if x > 0:
+                        neighbors.append(data[y][x-1])
+                except IndexError:
+                    pass
+                try:
+                    neighbors.append(data[y][x+1])
+                except IndexError:
+                    pass
+                try:
+                    neighbors.append(data[y+1][x])
+                except IndexError:
+                    pass
+                
+                if self.debug:
+                    print(f'{value=} : {neighbors=}')
+                if all([int(value) < int(neighbor) for neighbor in neighbors]):
+                    low_points.append(int(value))
+        if self.debug:
+            print(low_points)
+        
+        points = sum(i+1 for i in low_points)
+        print(points)
