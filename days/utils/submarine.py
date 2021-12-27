@@ -237,3 +237,63 @@ class VentSub(Submarine):
             map[y_to][x_to] += 1
 
         return map
+
+
+class SegmentSub(Submarine):
+    def __init__(self, file_path: str = None, debug: bool = False) -> None:
+        super().__init__(file_path=file_path, debug=debug)
+        self.segment_count_map = {
+            0: 6,
+            1: 2,
+            2: 5,
+            3: 5,
+            4: 4,
+            5: 5,
+            6: 6,
+            7: 3,
+            8: 7,
+            9: 6
+        }
+        self.segment_count_map2 = {
+            2: [1],
+            3: [7],
+            4: [4],
+            5: [2,3,5,6],
+            6: [0,6,9],
+            7: [8]
+        }
+
+        self.easy_digits = [1,4,7,8]
+
+    def _load_segment_data(self):
+        data = []
+        with open(self.file_path, 'r') as f:
+            for line in f:
+                segment_data = line.split('|')
+                data.append(
+                    {
+                        "input": segment_data[0].strip().split(' '),
+                        "output": segment_data[1].strip().split(' ')
+                    }
+                )
+        return data
+
+    def run_segments(self):
+        data = self._load_segment_data()
+        count = 0
+        for row in data:
+            count += self._count_easy_digits(row)
+            if self.debug:
+                print(f'{count=}, {row=}')
+        print(count)
+
+    def _count_easy_digits(self, row):
+        output = row['output']
+        count = 0
+        for digit in output:
+            if self.debug:
+                print(digit, len(digit))
+            if any([self.segment_count_map2[len(digit)][0] in self.easy_digits]):
+                count += 1
+        return count
+
